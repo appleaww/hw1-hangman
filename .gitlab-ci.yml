@@ -5,25 +5,20 @@ include:
 
 variables:
 #  P_LANG: "java" # Default value, may be overridden via GitLab CI/CD UI
+  GITLAB_HOST: gitlab.education.tbank.ru:443
 
 stages:
-  - pre
   - acceptance
   - build
   - validate
-
-show_variables:
-  stage: pre
-  script:
-    - printenv | sort
 
 .acceptance_test:
   stage: acceptance
   variables:
     DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_CERTDIR: /certs
     DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_CERT_PATH: $DOCKER_TLS_CERTDIR/client
   image: docker
   tags:
     - dind
@@ -35,5 +30,8 @@ show_variables:
       when: always
       allow_failure: false
     - when: never
+  before_script:
+    - echo "$CI_JOB_TOKEN" | docker login "$GITLAB_HOST" -u gitlab-ci-token --password-stdin
   script:
+    - docker pull "$GITLAB_DOCKER_PROXY"/"$DOCKER_IMAGE"
     - sh scripts/run_acceptance_tests.sh $CI_PROJECT_NAME $DOCKERFILE
