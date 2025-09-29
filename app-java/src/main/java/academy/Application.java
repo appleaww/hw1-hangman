@@ -52,12 +52,11 @@ public class Application implements Runnable {
 
     @Override
     public void run() {
-        AppConfig config = loadConfig();
-        LOGGER.atInfo().addKeyValue("config", config).log("Config content");
-
         if (words != null && words.length == 2) {
             runNonInteractiveMode(words[0], words[1]);
         } else {
+            AppConfig config = loadConfig();
+            LOGGER.atInfo().addKeyValue("config", config).log("Config content");
             runInteractiveMode(config);
         }
     }
