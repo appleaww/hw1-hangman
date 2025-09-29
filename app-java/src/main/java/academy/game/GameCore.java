@@ -111,25 +111,22 @@ public class GameCore {
     }
 
     public static String playAutomated(String secretWord, String guessWord) {
-        if (secretWord == null || guessWord == null ||
-            secretWord.length() != guessWord.length()) {
+        if (secretWord.length() != guessWord.length()) {
             throw new IllegalArgumentException("Слова должны быть одинаковой длины");
         }
 
-        StringBuilder result = new StringBuilder();
+        char[] result = secretWord.toCharArray();
         boolean fullyCorrect = true;
 
         for (int i = 0; i < secretWord.length(); i++) {
-            if (secretWord.charAt(i) == guessWord.charAt(i)) {
-                result.append(secretWord.charAt(i));
-            } else {
-                result.append('*');
+            char currentChar = secretWord.charAt(i);
+            if (guessWord.indexOf(currentChar) == -1) {
+                result[i] = '*';
                 fullyCorrect = false;
             }
         }
 
-
-        return result.toString() + ";" + (fullyCorrect ? "POS" : "NEG");
+        return new String(result) + ";" + (fullyCorrect ? "POS" : "NEG");
     }
 }
 
