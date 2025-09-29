@@ -6,14 +6,14 @@ public class Game {
             throw new IllegalArgumentException("Слова должны быть одинаковой длины");
         }
 
-        char[] result = secretWord.toCharArray(); 
+        char[] result = secretWord.toCharArray();
         boolean fullyCorrect = true;
 
-        
+
         for (int i = 0; i < secretWord.length(); i++) {
             char currentChar = secretWord.charAt(i);
 
-            
+
             if (guessWord.indexOf(currentChar) == -1) {
                 result[i] = '*';
                 fullyCorrect = false;
@@ -38,4 +38,3 @@ public class Game {
         }
     }
 }
-
