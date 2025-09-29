@@ -24,13 +24,16 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.err.println("Usage: java Game <secret_word> <guess_word>");
             System.exit(1);
         }
 
         try {
-            String result = playAutomated(args[0], args[1]);
+            String secretWord = args[0];
+            String guessWord = args[args.length - 1];
+
+            String result = playAutomated(secretWord, guessWord);
             System.out.println(result);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
