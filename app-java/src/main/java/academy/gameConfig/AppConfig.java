@@ -1,4 +1,4 @@
-package academy;
+package academy.gameConfig;
 
 import java.util.Arrays;
 import java.util.Objects;
