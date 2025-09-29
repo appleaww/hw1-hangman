@@ -9,11 +9,8 @@ public class Game {
         char[] result = secretWord.toCharArray();
         boolean fullyCorrect = true;
 
-
         for (int i = 0; i < secretWord.length(); i++) {
             char currentChar = secretWord.charAt(i);
-
-
             if (guessWord.indexOf(currentChar) == -1) {
                 result[i] = '*';
                 fullyCorrect = false;
@@ -31,7 +28,7 @@ public class Game {
 
         try {
             String secretWord = args[0];
-            String guessWord = args[args.length - 1];
+            String guessWord = args[1];
 
             String result = playAutomated(secretWord, guessWord);
             System.out.println(result);
