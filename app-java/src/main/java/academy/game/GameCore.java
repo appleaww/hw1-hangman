@@ -115,19 +115,23 @@ public class GameCore {
             throw new IllegalArgumentException("Слова должны быть одинаковой длины");
         }
 
-        char[] result = secretWord.toCharArray();
-        boolean fullyCorrect = true;
-
+        char[] result = new char[secretWord.length()];
         for (int i = 0; i < secretWord.length(); i++) {
             char currentChar = secretWord.charAt(i);
-            if (guessWord.indexOf(currentChar) == -1) {
+            if (guessWord.contains(String.valueOf(currentChar))) {
+                result[i] = currentChar;
+            } else {
                 result[i] = '*';
-                fullyCorrect = false;
             }
         }
 
+        boolean fullyCorrect = secretWord.equals(guessWord);
+
         return new String(result) + ";" + (fullyCorrect ? "POS" : "NEG");
     }
+
+
 }
+
 
 
