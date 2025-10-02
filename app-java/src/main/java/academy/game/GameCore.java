@@ -6,6 +6,7 @@ import java.util.*;
 
 public class GameCore {
     private String secretWord;
+    private String originalSecretWord;
     private char[] guessedLetters;
     private int maxAttempts;
     private int attemptsLeft;
@@ -15,8 +16,9 @@ public class GameCore {
     private boolean gameWon;
 
     public String getSecretWord() {
-        return secretWord;
+        return originalSecretWord;
     }
+
     public int getAttemptsLeft(){
         return attemptsLeft;
     }
@@ -39,7 +41,18 @@ public class GameCore {
     }
 
     public String getGuessedWord() {
-        return new String(guessedLetters);
+        char[] result = new char[originalSecretWord.length()];
+        for (int i = 0; i < originalSecretWord.length(); i++) {
+            char originalChar = originalSecretWord.charAt(i);
+            char lowerChar = Character.toLowerCase(originalChar);
+
+            if (guessedLetters[i] != '_') {
+                result[i] = originalChar;
+            } else {
+                result[i] = '_';
+            }
+        }
+        return new String(result);
     }
 
     public Set<Character> getUsedLetters() {
@@ -57,12 +70,13 @@ public class GameCore {
         if (secretWord.length() < 2) {
             throw new IllegalArgumentException("Secret word must be at least 2 characters long");
         }
+        this.originalSecretWord = secretWord;
         this.secretWord = secretWord.toLowerCase();
         this.maxAttempts = maxAttempts;
         this.attemptsLeft = maxAttempts;
         this.wrongAttempts = 0;
         this.guessedLetters = new char[secretWord.length()];
-        Arrays.fill(this.guessedLetters, '*');
+        Arrays.fill(this.guessedLetters, '_');
         this.gameOver = false;
         this.gameWon = false;
         this.usedLetters.clear();
@@ -98,7 +112,7 @@ public class GameCore {
     }
 
     private void checkGameStatus() {
-        if (!new String(guessedLetters).contains("*")) {
+        if (!new String(guessedLetters).contains("_")) {
             gameWon = true;
             gameOver = true;
             return;
@@ -109,6 +123,23 @@ public class GameCore {
             gameOver = true;
         }
     }
+    public ValidationResult validateInput(String input) {
+        if (input.length() != 1) {
+            return new ValidationResult(false, "Please enter exactly one character");
+        }
+
+        char letter = input.charAt(0);
+        if (Character.isDigit(letter)) {
+            return new ValidationResult(false, "Please enter a letter, not a digit");
+        }
+
+        if (!Character.isLetter(letter)) {
+            return new ValidationResult(false, "Please enter a valid letter");
+        }
+
+        return new ValidationResult(true, "");
+    }
+    public record ValidationResult(boolean isValid, String errorMessage) {}
 
     public static String playAutomated(String secretWord, String guessWord) {
         if (secretWord.length() != guessWord.length()) {
@@ -119,9 +150,9 @@ public class GameCore {
         for (int i = 0; i < secretWord.length(); i++) {
             char currentChar = secretWord.charAt(i);
             if (guessWord.contains(String.valueOf(currentChar))) {
-                result[i] = currentChar;
+                result[i] = secretWord.charAt(i);
             } else {
-                result[i] = '*';
+                result[i] = '_';
             }
         }
 
@@ -129,9 +160,8 @@ public class GameCore {
 
         return new String(result) + ";" + (fullyCorrect ? "POS" : "NEG");
     }
-
-
 }
+
 
 
 

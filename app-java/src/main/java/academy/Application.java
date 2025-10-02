@@ -2,7 +2,7 @@ package academy;
 
 import academy.game.Dictionary;
 import academy.game.GameCore;
-import academy.gameConfig.AppConfig;
+import academy.game.config.AppConfig;
 import academy.visualization.VisualizationCore;
 import academy.visualization.VisualizationInterface;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -29,8 +30,7 @@ public class Application implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     private static final ObjectReader YAML_READER = new ObjectMapper(new YAMLFactory()).findAndRegisterModules().reader();
-    private static Boolean letterLengthFlag = true;
-    private static Boolean isLetter = true;
+
 
     @Option(names = {"-s", "--font-size"}, description = "Font size")
     int fontSize;
@@ -56,7 +56,7 @@ public class Application implements Runnable {
             runNonInteractiveMode(words[0], words[1]);
         } else {
             AppConfig config = loadConfig();
-            LOGGER.atInfo().addKeyValue("config", config).log("Config content");
+            LOGGER.info("Application configuration loaded successfully: {}", config);
             runInteractiveMode(config);
         }
     }
@@ -91,36 +91,35 @@ public class Application implements Runnable {
 
     private void runGameLoop(GameCore game, VisualizationInterface visualizer) {
         Scanner scanner = new Scanner(System.in);
+        String lastError = null;
+
         while (!game.isGameOver()) {
+            visualizer.consoleDisplayGameState(game, lastError);
+            lastError = null;
 
-            visualizer.consoleDisplayGameState(game, letterLengthFlag, isLetter);
-            letterLengthFlag = true;
-            isLetter = true;
-            visualizer.consoleMessage("Enter a letter: ");
+            System.out.print("Enter a letter: ");
             String input = scanner.nextLine().trim();
-            char letter = input.charAt(0);
-            if (input.length() != 1 && !Character.isDigit(letter)) {
-                letterLengthFlag = false;
-                continue;
-            }
-            if (Character.isDigit(letter)) {
-                isLetter = false;
+
+            GameCore.ValidationResult validation = game.validateInput(input);
+            if (!validation.isValid()) {
+                lastError = validation.errorMessage();
                 continue;
             }
 
+            char letter = input.charAt(0);
             boolean isCorrect = game.processGuess(letter);
         }
 
-        if (game.isGameOver()) {
-            if (game.isGameWon()) {
-                visualizer.consoleWin(game.getSecretWord());
-            } else {
-                visualizer.consoleLose(game.getSecretWord());
-            }
-        }
 
-        scanner.close();
+        visualizer.consoleDisplayGameState(game, null);
+
+        if (game.isGameWon()) {
+            visualizer.consoleWin(game.getSecretWord());
+        } else {
+            visualizer.consoleLose(game.getSecretWord());
+        }
     }
+
 
     private void runNonInteractiveMode(String secretWord, String guessWord) {
         try {
@@ -130,58 +129,72 @@ public class Application implements Runnable {
             System.err.println("Ошибка в неинтерактивном режиме: " + e.getMessage());
         }
     }
-
     private String selectCategory(Dictionary dictionary) {
         Scanner scanner = new Scanner(System.in);
         Set<String> categories = dictionary.getCategories();
         VisualizationInterface visualizer = new VisualizationCore();
         visualizer.consoleWelcome();
         System.out.println("Select a category:");
+
         List<String> categoryList = new ArrayList<>(categories);
+        System.out.println("0. Random category");
 
         for (int i = 0; i < categoryList.size(); i++) {
             System.out.println((i + 1) + ". " + categoryList.get(i));
         }
 
         while (true) {
-            System.out.print("Enter the number of category:");
+            System.out.print("Enter the number of category (0-" + categoryList.size() + "): ");
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
-                if (choice >= 1 && choice <= categoryList.size()) {
+                if (choice == 0) {
+                    Random random = new Random();
+                    return categoryList.get(random.nextInt(categoryList.size()));
+                } else if (choice >= 1 && choice <= categoryList.size()) {
                     return categoryList.get(choice - 1);
                 } else {
-                    System.out.println("Incorrect choice! Enter the number from 1 to " + categoryList.size());
+                    System.out.println("Incorrect choice! Enter the number from 0 to " + categoryList.size());
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Please, enter the number!");
+                System.out.println("Please, enter a valid number!");
             }
         }
     }
 
     private String selectDifficulty() {
         Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
 
-        System.out.println("\nSelect the difficultly level:");
+        System.out.println("\nSelect the difficulty level:");
+        System.out.println("0. Random difficulty");
         System.out.println("1. Easy");
         System.out.println("2. Medium");
         System.out.println("3. Hard");
 
         while (true) {
-            System.out.print("Select the difficultly: ");
-            String input = scanner.nextLine().trim();
-
-            switch (input) {
-                case "1":
-                    return "easy";
-                case "2":
-                    return "medium";
-                case "3":
-                    return "hard";
-                default:
-                    System.out.println("Incorrect choice! Enter 1, 2 or 3");
+            System.out.print("Select the difficulty (0-3): ");
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+                switch (choice) {
+                    case 0:
+                        String[] difficulties = {"easy", "medium", "hard"};
+                        return difficulties[random.nextInt(difficulties.length)];
+                    case 1:
+                        return "easy";
+                    case 2:
+                        return "medium";
+                    case 3:
+                        return "hard";
+                    default:
+                        System.out.println("Incorrect choice! Enter number from 0 to 3");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please, enter a valid number!");
             }
         }
     }
+
+
 
     private int calculateMaxAttempts(String difficulty, int wordLength) {
         return switch (difficulty.toLowerCase()) {

@@ -12,7 +12,7 @@ public class VisualizationCore implements VisualizationInterface {
     }
 
     @Override
-    public void consoleDisplayGameState(GameCore gameCore, Boolean flag, Boolean isLetterFlag) {
+    public void consoleDisplayGameState(GameCore gameCore, String errorMessage) {
         clearDisplay();
         int wrongAttempts = gameCore.getWrongAttempts();
         int maxAttempts = gameCore.getMaxAttempts();
@@ -24,11 +24,13 @@ public class VisualizationCore implements VisualizationInterface {
         if (!usedLetters.isEmpty()) {
             System.out.println("Used letters: " + usedLetters);
         }
-        if(!flag) System.out.println("Please enter exactly one letter!");
-        if(!isLetterFlag) System.out.println("Please enter a letter, not a digit!");
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            System.out.println("Error: " + errorMessage);
+        }
 
         System.out.println();
     }
+
 
 
     @Override
@@ -56,13 +58,6 @@ public class VisualizationCore implements VisualizationInterface {
         for (int i = 0; i < 30; i++) {
             System.out.println();
         }
-    }
-    @Override
-    public void clearDisplayWithMessage() {
-        for (int i = 0; i < 30; i++) {
-            System.out.println();
-        }
-        System.out.println("Please enter exactly one letter!");
     }
 
 }

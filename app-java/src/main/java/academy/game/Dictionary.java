@@ -41,7 +41,4 @@ public class Dictionary {
     public Set<String> getCategories() {
         return words.keySet();
     }
-
-
-
 }

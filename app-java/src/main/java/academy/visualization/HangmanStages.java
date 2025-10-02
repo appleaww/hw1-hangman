@@ -77,5 +77,4 @@ public enum HangmanStages {
         stageIndex = Math.min(Math.max(stageIndex, 0), 6);
         return values()[stageIndex];
     }
-
 }
