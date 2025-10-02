@@ -152,7 +152,7 @@ public class GameCore {
             if (guessWord.contains(String.valueOf(currentChar))) {
                 result[i] = secretWord.charAt(i);
             } else {
-                result[i] = '_';
+                result[i] = '*';
             }
         }
 
