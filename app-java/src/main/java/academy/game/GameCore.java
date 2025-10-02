@@ -147,16 +147,18 @@ public class GameCore {
         }
 
         char[] result = new char[secretWord.length()];
+        boolean fullyCorrect = true;
+
         for (int i = 0; i < secretWord.length(); i++) {
             char currentChar = secretWord.charAt(i);
+
             if (guessWord.contains(String.valueOf(currentChar))) {
-                result[i] = secretWord.charAt(i);
+                result[i] = currentChar;
             } else {
                 result[i] = '*';
+                fullyCorrect = false;
             }
         }
-
-        boolean fullyCorrect = secretWord.equals(guessWord);
 
         return new String(result) + ";" + (fullyCorrect ? "POS" : "NEG");
     }
