@@ -33,17 +33,17 @@ class GameCoreTest {
     void testGameStateAfterEachInput() {
         game.initializeGame("яблоко", 5);
 
-        assertEquals("******", game.getGuessedWord());
+        assertEquals("______", game.getGuessedWord());
         assertEquals(5, game.getAttemptsLeft());
         assertFalse(game.isGameOver());
 
         game.processGuess('я');
-        assertEquals("я*****", game.getGuessedWord());
+        assertEquals("я_____", game.getGuessedWord());
         assertEquals(5, game.getAttemptsLeft());
         assertFalse(game.isGameOver());
 
         game.processGuess('з');
-        assertEquals("я*****", game.getGuessedWord());
+        assertEquals("я_____", game.getGuessedWord());
         assertEquals(4, game.getAttemptsLeft());
         assertFalse(game.isGameOver());
     }
@@ -57,7 +57,7 @@ class GameCoreTest {
         assertTrue(game.processGuess('Е'));
         assertTrue(game.processGuess('с'));
 
-        assertEquals("тест", game.getGuessedWord());
+        assertEquals("ТЕСТ", game.getGuessedWord());
 
         Set<Character> usedLetters = game.getUsedLetters();
         assertTrue(usedLetters.contains('т'));
@@ -104,12 +104,12 @@ class GameCoreTest {
         assertTrue(game.processGuess('с'));
         assertEquals(1, game.getUsedLetters().size());
         assertTrue(game.getUsedLetters().contains('с'));
-        assertEquals("с**", game.getGuessedWord());
+        assertEquals("с__", game.getGuessedWord());
 
         assertFalse(game.processGuess('ч'));
         assertEquals(2, game.getUsedLetters().size());
         assertEquals(3, game.getAttemptsLeft());
-        assertEquals("с**", game.getGuessedWord());
+        assertEquals("с__", game.getGuessedWord());
     }
 
     @Test
